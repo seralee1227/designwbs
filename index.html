@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>디자인팀 WBS 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Pretendard',sans-serif;background:#f8f8f6;color:#1a1a18;font-size:13px;line-height:1.5;}
+a{color:inherit;text-decoration:none;}
+/* LAYOUT */
+.header{background:#fff;border-bottom:0.5px solid #e0ddd5;padding:0 28px;display:flex;align-items:center;gap:20px;height:52px;position:sticky;top:0;z-index:100;}
+.logo{font-size:14px;font-weight:600;color:#1a1a18;}
+.logo span{color:#888;font-weight:400;}
+.main{padding:24px 28px;max-width:1400px;margin:0 auto;}
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
+.tab{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid #ccc;color:#666;background:transparent;transition:all .15s;}
+.tab:hover{border-color:#999;color:#333;}
+.tab.active{background:#1a1a18;color:#fff;border-color:transparent;}
+.view{display:none;}
+.view.active{display:block;}
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.toolbar select,.toolbar input{height:30px;padding:0 10px;border:0.5px solid #ddd;border-radius:6px;font-size:12px;background:#fff;color:#333;}
+.btn{height:30px;padding:0 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid #ddd;background:#fff;color:#333;transition:all .15s;}
+.btn:hover{background:#f0ede5;border-color:#bbb;}
+.btn-primary{background:#1a1a18;color:#fff;border-color:#1a1a18;}
+.btn-primary:hover{background:#333;}
+.btn-danger{background:#fff;color:#A32D2D;border-color:#f0b8b8;}
+.btn-danger:hover{background:#FCEBEB;}
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border:0.5px solid #e0ddd5;border-radius:10px;background:#fff;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{font-size:11px;font-weight:500;color:#888;padding:8px 10px;border-bottom:0.5px solid #e0ddd5;white-space:nowrap;background:#fafaf8;text-align:left;}
+td{padding:8px 10px;border-bottom:0.5px solid #f0ede5;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafaf8;}
+.badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;white-space:nowrap;display:inline-block;}
+.s0{background:#EAF3DE;color:#3B6D11;}
+.s1{background:#E6F1FB;color:#185FA5;}
+.s2{background:#FAEEDA;color:#854F0B;}
+.s3{background:#F1EFE8;color:#5F5E5A;}
+.s4{background:#FBEAF0;color:#993556;}
+.tag{font-size:10px;padding:2px 6px;border-radius:4px;background:#f1efe8;border:0.5px solid #ddd;color:#666;white-space:nowrap;}
+.diff-상{color:#A32D2D;font-weight:600;}
+.diff-중{color:#BA7517;font-weight:600;}
+.diff-하{color:#3B6D11;font-weight:600;}
+.pct-bar-wrap{display:flex;align-items:center;gap:6px;}
+.pct-bar{height:4px;background:#eee;border-radius:2px;flex:1;min-width:48px;}
+.pct-fill{height:100%;border-radius:2px;background:#639922;}
+/* GANTT */
+.gantt-wrap{overflow-x:auto;border:0.5px solid #e0ddd5;border-radius:10px;background:#fff;}
+.gantt-inner{min-width:1000px;}
+.g-head-months{display:flex;border-bottom:0.5px solid #e0ddd5;}
+.g-left{width:360px;flex-shrink:0;}
+.g-months{display:flex;flex:1;}
+.month-cell{text-align:center;font-size:11px;font-weight:500;color:#888;padding:5px 0;border-right:0.5px solid #e8e5dc;}
+.g-head-weeks{display:flex;border-bottom:0.5px solid #e0ddd5;background:#fafaf8;}
+.g-cols{display:flex;flex:1;}
+.week-cell{text-align:center;font-size:10px;color:#aaa;padding:3px 0;border-right:0.5px solid #f0ede5;}
+.g-row{display:flex;align-items:center;border-bottom:0.5px solid #f0ede5;min-height:32px;}
+.g-row:hover{background:#fafaf8;}
+.g-row:last-child{border-bottom:none;}
+.g-no{width:28px;flex-shrink:0;text-align:center;font-size:10px;color:#aaa;}
+.g-proj{width:72px;flex-shrink:0;padding:0 4px;}
+.g-task{width:180px;flex-shrink:0;padding:0 6px;font-size:11px;line-height:1.35;color:#333;}
+.g-who{width:40px;flex-shrink:0;text-align:center;font-size:10px;color:#aaa;}
+.g-pct{width:36px;flex-shrink:0;text-align:right;padding-right:6px;font-size:11px;font-weight:500;}
+.g-bars{flex:1;position:relative;}
+.bar-cols{display:flex;height:32px;}
+.bar-col{border-right:0.5px solid #f5f2ea;height:100%;}
+.bar{height:7px;border-radius:2px;position:absolute;}
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:14px;padding:24px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.12);}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:16px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:11px;color:#888;font-weight:500;}
+.form-group input,.form-group select,.form-group textarea{border:0.5px solid #ddd;border-radius:6px;padding:7px 10px;font-size:12px;background:#fff;color:#333;font-family:inherit;}
+.form-group textarea{resize:vertical;min-height:60px;}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;}
+/* LEGEND */
+.legend{display:flex;gap:14px;margin-bottom:12px;flex-wrap:wrap;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#777;}
+.leg-dot{width:8px;height:8px;border-radius:2px;}
+/* PROJ TABLE */
+.proj-group-row td{background:#fafaf8;font-size:11px;font-weight:600;color:#777;padding:6px 10px;}
+.summary-bar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+.scard{background:#fff;border:0.5px solid #e0ddd5;border-radius:10px;padding:12px 18px;min-width:100px;}
+.scard-label{font-size:11px;color:#aaa;margin-bottom:4px;}
+.scard-val{font-size:20px;font-weight:600;color:#1a1a18;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">디자인팀 WBS <span>2026</span></div>
+  <div style="margin-left:auto;display:flex;gap:8px;">
+    <button class="btn" onclick="exportCSV()">CSV 내보내기</button>
+    <button class="btn btn-primary" onclick="openModal()">+ 태스크 추가</button>
+  </div>
+</div>
+
+<div class="main">
+  <!-- 요약 카드 -->
+  <div class="summary-bar" id="sumbar"></div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="sw(0)">📋 프로젝트별 업무</button>
+    <button class="tab" onclick="sw(1)">📄 태스크 목록</button>
+    <button class="tab" onclick="sw(2)">📅 간트 차트</button>
+  </div>
+
+  <!-- TAB 0 -->
+  <div class="view active" id="v0">
+    <div class="toolbar">
+      <input type="text" id="s0" placeholder="검색..." oninput="renderProj()" style="width:180px;">
+      <select id="f0-diff" onchange="renderProj()">
+        <option value="">난이도 전체</option>
+        <option>상</option><option>중</option><option>하</option>
+      </select>
+      <select id="f0-who" onchange="renderProj()">
+        <option value="">담당자 전체</option>
+        <option>이세라</option><option>유미진</option>
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr>
+        <th>프로젝트</th><th>구분</th><th>활동</th><th>난이도</th><th>세부내용</th><th>시점</th><th>소요시간</th><th>담당(1순위)</th>
+      </tr></thead>
+      <tbody id="proj-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="view" id="v1">
+    <div class="toolbar">
+      <input type="text" id="s1" placeholder="검색..." oninput="renderList()" style="width:180px;">
+      <select id="f1-who" onchange="renderList()">
+        <option value="">담당자 전체</option>
+        <option>이세라</option><option>유미진</option>
+      </select>
+      <select id="f1-st" onchange="renderList()">
+        <option value="">상태 전체</option>
+        <option>개발완료</option><option>개발대기</option><option>진행중</option><option>예정</option><option>완료</option><option>업체발주</option>
+      </select>
+    </div>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#639922;"></div>개발완료/완료</div>
+      <div class="leg"><div class="leg-dot" style="background:#378ADD;"></div>개발대기</div>
+      <div class="leg"><div class="leg-dot" style="background:#BA7517;"></div>진행중</div>
+      <div class="leg"><div class="leg-dot" style="background:#888780;"></div>예정</div>
+      <div class="leg"><div class="leg-dot" style="background:#993556;"></div>업체발주</div>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr>
+        <th>No</th><th>프로젝트</th><th>항목</th><th>담당</th>
+        <th>계획시작</th><th>계획종료</th><th>실적착수</th><th>실적종료</th>
+        <th>진척율</th><th>상태</th><th>액션</th>
+      </tr></thead>
+      <tbody id="list-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div class="view" id="v2">
+    <div class="toolbar">
+      <select id="f2-who" onchange="renderGantt()">
+        <option value="">담당자 전체</option>
+        <option>이세라</option><option>유미진</option>
+      </select>
+    </div>
+    <div class="legend">
+      <div class="leg"><div style="width:22px;height:7px;border-radius:2px;background:#378ADD;opacity:.3;"></div>계획</div>
+      <div class="leg"><div style="width:22px;height:7px;border-radius:2px;background:#378ADD;opacity:.9;"></div>실적</div>
+    </div>
+    <div class="gantt-wrap">
+      <div class="gantt-inner">
+        <div class="g-head-months" id="mhdr"></div>
+        <div class="g-head-weeks" id="whdr"></div>
+        <div id="gbody"></div>
+      </div>
+    </div>
+    <p style="margin-top:10px;font-size:11px;color:#aaa;">※ 날짜 미정 항목은 간트에서 생략됩니다.</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="e=>e.target===this&&closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="modal-title">태스크 추가</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>No</label><input id="f-no" type="number" placeholder="자동"></div>
+      <div class="form-group"><label>프로젝트</label><input id="f-proj" placeholder="예: 파로스"></div>
+      <div class="form-group full"><label>항목 (태스크명)</label><input id="f-task" placeholder="예: [홈페이지] 디자인 작업"></div>
+      <div class="form-group"><label>담당자</label>
+        <select id="f-who"><option>이세라</option><option>유미진</option><option>이세라, 유미진</option></select>
+      </div>
+      <div class="form-group"><label>상태</label>
+        <select id="f-st"><option>예정</option><option>진행중</option><option>개발대기</option><option>개발완료</option><option>완료</option><option>업체발주</option></select>
+      </div>
+      <div class="form-group"><label>진척율 (%)</label><input id="f-pct" type="number" min="0" max="100" value="0"></div>
+      <div class="form-group"><label>계획 시작</label><input id="f-ps" placeholder="예: 04.14"></div>
+      <div class="form-group"><label>계획 종료</label><input id="f-pe" placeholder="예: 04.17"></div>
+      <div class="form-group"><label>실적 착수</label><input id="f-as" placeholder="예: 04.14"></div>
+      <div class="form-group"><label>실적 종료</label><input id="f-ae" placeholder="예: 04.17"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveTask()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 데이터
+const PROJ_DATA = [
+  {proj:'파로스',cat:'서비스 페이지',act:'디자인 시스템/UI',diff:'상',detail:'디자인 시스템, UI 디자인',time:'상시',dur:'10일',who:'이세라'},
+  {proj:'파로스',cat:'서비스 페이지',act:'신규/검수/수정',diff:'상',detail:'신규 디자인, 검수&수정, 기획 변경 반영',time:'상시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'파로스',cat:'서비스 페이지',act:'로그인배너/팝업',diff:'상',detail:'로그인 배너, 업데이트·이벤트 팝업 디자인',time:'상시',dur:'1~2일',who:'이세라'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'홈페이지 수정/신규',diff:'상',detail:'홈페이지 수정, 신규 디자인 (PC/모바일)',time:'상시',dur:'작업양에 따라',who:'유미진'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'이벤트 디자인',diff:'중',detail:'이벤트 상세디자인, 섬네일',time:'상시',dur:'1일',who:'유미진'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'보도기사',diff:'하',detail:'보도기사 이미지 디자인',time:'요청시',dur:'4시간',who:'유미진'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'블로그',diff:'중',detail:'포스팅용 디자인',time:'상시',dur:'작업양에 따라',who:'유미진'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'인스타그램',diff:'중',detail:'릴스 하이라이트, 카드뉴스 디자인',time:'상시',dur:'2일',who:'유미진'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'페이스북',diff:'중',detail:'메인 커버 이미지, 카드뉴스 디자인',time:'상시',dur:'2일',who:'유미진'},
+  {proj:'파로스',cat:'마케팅 홈페이지',act:'유튜브',diff:'중',detail:'메인 커버 이미지, 섬네일 디자인',time:'상시',dur:'1일',who:'유미진'},
+  {proj:'파로스',cat:'행사디자인',act:'행사 인쇄물',diff:'중',detail:'리플렛, X배너, 족자, 아크릴미니배너, 명함, 설문배너',time:'요청시',dur:'7일',who:'이세라'},
+  {proj:'스텔라',cat:'서비스 페이지',act:'디자인 시스템/UI',diff:'상',detail:'디자인 시스템, UI 디자인',time:'상시',dur:'10일',who:'이세라'},
+  {proj:'스텔라',cat:'서비스 페이지',act:'신규/검수/수정',diff:'상',detail:'신규 디자인, 검수&수정, 기획 변경 반영',time:'상시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'스텔라',cat:'서비스 페이지',act:'로그인배너/팝업',diff:'상',detail:'로그인 배너, 업데이트·이벤트 팝업 디자인',time:'상시',dur:'1~2일',who:'이세라'},
+  {proj:'스텔라',cat:'마케팅 홈페이지',act:'홈페이지 수정/신규',diff:'상',detail:'홈페이지 수정, 신규 디자인, 컨텐츠 업데이트',time:'상시',dur:'작업양에 따라',who:'유미진'},
+  {proj:'스텔라',cat:'마케팅 홈페이지',act:'이벤트 디자인',diff:'중',detail:'이벤트 상세디자인 (PC/모바일), 섬네일',time:'상시',dur:'1일',who:'유미진'},
+  {proj:'스텔라',cat:'마케팅 홈페이지',act:'블로그',diff:'중',detail:'포스팅용 디자인',time:'상시',dur:'작업양에 따라',who:'유미진'},
+  {proj:'스텔라',cat:'마케팅 홈페이지',act:'인스타그램',diff:'중',detail:'릴스 하이라이트, 카드뉴스 디자인',time:'상시',dur:'2일',who:'유미진'},
+  {proj:'스텔라',cat:'마케팅 홈페이지',act:'페이스북',diff:'중',detail:'메인 커버 이미지, 카드뉴스 디자인',time:'상시',dur:'2일',who:'유미진'},
+  {proj:'스텔라',cat:'마케팅 홈페이지',act:'유튜브',diff:'중',detail:'메인 커버 이미지, 섬네일 디자인',time:'상시',dur:'1일',who:'유미진'},
+  {proj:'스텔라',cat:'행사디자인',act:'행사 인쇄물',diff:'중',detail:'리플렛, X배너, 족자, 아크릴미니배너, 명함, 설문배너',time:'요청시',dur:'7일',who:'이세라'},
+  {proj:'제휴(hiworks파로스)',cat:'서비스 페이지',act:'신규/검수/수정',diff:'상',detail:'로그인배너, 신규 디자인, 검수&수정, 기획 변경 반영',time:'상시',dur:'1~2일',who:'이세라'},
+  {proj:'제휴(Biz파로스)',cat:'서비스 페이지',act:'신규/검수/수정',diff:'상',detail:'로그인배너, 신규 디자인, 검수&수정, 기획 변경 반영',time:'상시',dur:'1~2일',who:'이세라'},
+  {proj:'나이스페이먼츠',cat:'홈페이지',act:'랜딩페이지 디자인',diff:'상',detail:'랜딩페이지 디자인',time:'상시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'AT',cat:'자격시험 홈페이지',act:'홈페이지 디자인',diff:'상',detail:'홈페이지 디자인, 컨텐츠 업데이트 (PC/모바일)',time:'상시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'AT',cat:'교육용 시스템',act:'UI 디자인',diff:'상',detail:'UI 디자인, 검수&수정, 기획 변경 반영',time:'상시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'AT',cat:'수험용 시스템',act:'UI 디자인',diff:'상',detail:'UI 디자인, 검수&수정, 기획 변경 반영',time:'상시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'컴패스',cat:'제품 홈페이지',act:'브랜딩/CI',diff:'상',detail:'브랜딩, 컬러, CI 디자인',time:'요청시',dur:'작업양에 따라',who:'이세라'},
+  {proj:'컴패스',cat:'제품 홈페이지',act:'디자인 시스템/UI',diff:'상',detail:'디자인 시스템, UI 디자인',time:'상시',dur:'작업양에 따라',who:'유미진'},
+  {proj:'컴패스',cat:'마케팅 홈페이지',act:'홈페이지 수정/신규',diff:'상',detail:'홈페이지 수정, 신규 디자인',time:'예정',dur:'작업양에 따라',who:'이세라'},
+  {proj:'핑거 AML Hub',cat:'홈페이지',act:'브랜딩/CI',diff:'상',detail:'브랜딩, 컬러, CI 디자인',time:'예정',dur:'작업양에 따라',who:'이세라'},
+  {proj:'핑거 AML Hub',cat:'홈페이지',act:'홈페이지 디자인',diff:'상',detail:'홈페이지 디자인',time:'예정',dur:'작업양에 따라',who:'이세라'},
+  {proj:'앵커',cat:'서비스 페이지',act:'리뉴얼/디자인 시스템',diff:'상',detail:'파로스 리뉴얼 디자인, 디자인 시스템, UI 디자인 (진행중)',time:'상시',dur:'작업양에 따라',who:'유미진'},
+  {proj:'핑거',cat:'홈페이지',act:'수정/업데이트',diff:'상',detail:'홈페이지 디자인 수정 및 업데이트 후 퍼블리싱',time:'요청시',dur:'수정양에 따라',who:'이세라'},
+  {proj:'핑거',cat:'블로그',act:'메인이미지/섬네일',diff:'중',detail:'메인이미지 홈페이지형 디자인, 섬네일, 포스팅이미지',time:'요청시',dur:'1일',who:'유미진'},
+  {proj:'핑거',cat:'편집디자인',act:'포스터',diff:'상',detail:'내부 포스터 디자인 (경영전략체계도, 미션&비전 등)',time:'요청시',dur:'2일',who:'이세라'},
+  {proj:'핑거',cat:'편집디자인',act:'명함',diff:'상',detail:'리뉴얼 명함 시안 작업',time:'요청시',dur:'2일',who:'이세라'},
+  {proj:'핑거',cat:'편집디자인',act:'리플렛',diff:'상',detail:'웰컴 키트용 리플렛 디자인',time:'요청시',dur:'3일',who:'이세라'},
+  {proj:'핑거',cat:'편집디자인',act:'패키지',diff:'중',detail:'웰컴 키트용 박스 패키지, 쇼핑백, 스티커',time:'요청시',dur:'2일',who:'이세라'},
+  {proj:'핑거',cat:'편집디자인',act:'회사소개서 PPT',diff:'상',detail:'핑거 회사소개서 PPT 디자인 (템플릿화)',time:'매년',dur:'15일',who:'이세라'},
+  {proj:'핑거',cat:'편집디자인',act:'행사디자인',diff:'상',detail:'창립기념일, 컨퍼런스, 불꽃축제 관련 배너 및 편집물',time:'요청시',dur:'5일',who:'이세라'},
+  {proj:'리서치/기타',cat:'벤치마킹',act:'벤치마킹',diff:'하',detail:'관련 디자인 벤치마킹',time:'weekly',dur:'2시간',who:'이세라'},
+  {proj:'리서치/기타',cat:'AI툴',act:'AI 활용 스터디',diff:'하',detail:'AI 활용예시 스터디 및 활용',time:'daily',dur:'필요시',who:'이세라'},
+  {proj:'업무관리',cat:'WBS/보고',act:'일일 업무 관리',diff:'하',detail:'프로젝트별 WBS 관리',time:'daily',dur:'20분',who:'이세라'},
+  {proj:'업무관리',cat:'WBS/보고',act:'주간 업무 보고',diff:'하',detail:'주간 업무 보고 작성',time:'weekly',dur:'30분',who:'이세라'},
+];
+
+const DEFAULT_TASKS = [
+  {no:1,proj:'스텔라',task:'[홈페이지] Why Stella Now? 서브페이지 컨텐츠 추가디자인',who:'이세라',pct:100,ps:'03.19',pe:'03.25',as:'03.19',ae:'03.25',status:'개발대기'},
+  {no:2,proj:'스텔라',task:'[홈페이지] 퀵메뉴 인블로그 바로가기 아이콘 디자인',who:'이세라',pct:100,ps:'04.01',pe:'04.01',as:'04.01',ae:'04.02',status:'개발대기'},
+  {no:3,proj:'스텔라',task:'[서비스] 어카운즈 인사이트 추가 디자인 (팝업)',who:'이세라',pct:0,ps:'04.14',pe:'04.15',as:'',ae:'',status:'진행중'},
+  {no:4,proj:'스텔라',task:'[홈페이지] 어카운즈 인사이트, 배너, 팝업 업데이트',who:'이세라',pct:100,ps:'04.13',pe:'04.17',as:'04.13',ae:'04.17',status:'개발완료'},
+  {no:5,proj:'파로스/스텔라',task:'[홈페이지] 요금제 문구 수정 (PC/모바일)',who:'이세라',pct:100,ps:'04.03',pe:'04.03',as:'04.03',ae:'04.03',status:'개발완료'},
+  {no:6,proj:'파로스/스텔라',task:'[백오피스] 메일 템플릿 디자인 (무료체험 종료)',who:'이세라',pct:100,ps:'04.02',pe:'04.03',as:'04.02',ae:'04.09',status:'개발대기'},
+  {no:7,proj:'파로스',task:'[홈페이지] 도입성공사례 컨텐츠 추가 디자인',who:'이세라',pct:100,ps:'03.30',pe:'03.30',as:'03.30',ae:'03.30',status:'개발대기'},
+  {no:8,proj:'파로스',task:'[홈페이지] GNB 말만해AI 아이콘 버튼 추가',who:'이세라',pct:100,ps:'04.03',pe:'04.03',as:'04.03',ae:'04.03',status:'완료'},
+  {no:9,proj:'ETC',task:'[앵커서비스] 전자계약 디자인 체크 및 가이드',who:'이세라',pct:100,ps:'03.23',pe:'04.03',as:'03.23',ae:'04.02',status:'완료'},
+  {no:10,proj:'핑거',task:'[홈페이지] 연혁, 재무정보 업데이트 및 메인배너 수정',who:'이세라',pct:100,ps:'04.06',pe:'04.08',as:'04.06',ae:'04.07',status:'완료'},
+  {no:11,proj:'핑거',task:'[홈페이지] 사업소개 > 파로스 컨텐츠 업데이트',who:'이세라',pct:0,ps:'04.13',pe:'04.17',as:'',ae:'',status:'진행중'},
+  {no:12,proj:'파로스/스텔라',task:'[서비스] 사업분석보고서 컬러 및 레이아웃 수정',who:'이세라',pct:0,ps:'',pe:'',as:'',ae:'',status:'예정'},
+  {no:13,proj:'AT파로스',task:'[홈페이지] 소개 홈페이지 업데이트 예정',who:'이세라',pct:0,ps:'',pe:'',as:'',ae:'',status:'예정'},
+  {no:14,proj:'앵커',task:'[서비스/홈페이지] 브랜딩 준비',who:'이세라',pct:0,ps:'',pe:'',as:'',ae:'',status:'예정'},
+  {no:15,proj:'앵커',task:'[홈페이지] 기획 예정 (개발완료 대기)',who:'유미진',pct:0,ps:'',pe:'',as:'',ae:'',status:'예정'},
+  {no:16,proj:'ETC',task:'[홈페이지] 1page 형태 디자인',who:'이세라',pct:0,ps:'',pe:'',as:'',ae:'',status:'예정'},
+  {no:17,proj:'파로스/스텔라',task:'[서비스] 1:1문의 아이콘 추가 및 팝업 개선',who:'이세라',pct:100,ps:'04.10',pe:'04.13',as:'04.10',ae:'04.13',status:'개발대기'},
+  {no:18,proj:'핑거',task:'핑거 패밀리 지식 향연 데이 현수막 디자인',who:'이세라',pct:100,ps:'04.14',pe:'04.14',as:'04.14',ae:'04.14',status:'업체발주'},
+];
+
+let tasks = JSON.parse(localStorage.getItem('wbs_tasks')||'null') || DEFAULT_TASKS.map(t=>({...t}));
+let editIdx = null;
+
+function save(){localStorage.setItem('wbs_tasks',JSON.stringify(tasks));}
+
+// ── 요약 카드
+function renderSummary(){
+  const total=tasks.length;
+  const done=tasks.filter(t=>t.status==='개발완료'||t.status==='완료'||t.status==='업체발주').length;
+  const ing=tasks.filter(t=>t.status==='진행중').length;
+  const wait=tasks.filter(t=>t.status==='개발대기').length;
+  const avg=Math.round(tasks.reduce((a,t)=>a+t.pct,0)/total);
+  document.getElementById('sumbar').innerHTML=`
+    <div class="scard"><div class="scard-label">전체 태스크</div><div class="scard-val">${total}</div></div>
+    <div class="scard"><div class="scard-label">완료</div><div class="scard-val" style="color:#3B6D11;">${done}</div></div>
+    <div class="scard"><div class="scard-label">진행중</div><div class="scard-val" style="color:#BA7517;">${ing}</div></div>
+    <div class="scard"><div class="scard-label">개발대기</div><div class="scard-val" style="color:#185FA5;">${wait}</div></div>
+    <div class="scard"><div class="scard-label">평균 진척율</div><div class="scard-val">${avg}%</div></div>`;
+}
+
+// ── 배지
+function badge(s){
+  const m={'개발완료':'s0','완료':'s0','업체발주':'s4','개발대기':'s1','진행중':'s2','예정':'s3'};
+  return `<span class="badge ${m[s]||'s3'}">${s}</span>`;
+}
+
+// ── TAB 0: 프로젝트별
+function renderProj(){
+  const q=(document.getElementById('s0').value||'').toLowerCase();
+  const fd=document.getElementById('f0-diff').value;
+  const fw=document.getElementById('f0-who').value;
+  let data=PROJ_DATA.filter(r=>{
+    if(fd&&r.diff!==fd)return false;
+    if(fw&&!r.who.includes(fw))return false;
+    if(q&&!(r.proj+r.cat+r.act+r.detail).toLowerCase().includes(q))return false;
+    return true;
+  });
+  let html='';let lastProj='';
+  data.forEach(r=>{
+    if(r.proj!==lastProj){
+      html+=`<tr class="proj-group-row"><td colspan="8">${r.proj}</td></tr>`;
+      lastProj=r.proj;
+    }
+    html+=`<tr>
+      <td><span class="tag">${r.proj}</span></td>
+      <td style="color:#666;">${r.cat}</td>
+      <td style="font-weight:500;">${r.act}</td>
+      <td style="text-align:center;" class="diff-${r.diff}">${r.diff}</td>
+      <td style="color:#555;max-width:260px;">${r.detail}</td>
+      <td style="color:#888;white-space:nowrap;">${r.time}</td>
+      <td style="color:#888;white-space:nowrap;">${r.dur}</td>
+      <td style="white-space:nowrap;">${r.who}</td>
+    </tr>`;
+  });
+  document.getElementById('proj-body').innerHTML=html||'<tr><td colspan="8" style="text-align:center;color:#aaa;padding:24px;">검색 결과 없음</td></tr>';
+}
+
+// ── TAB 1: 태스크 목록
+function renderList(){
+  const q=(document.getElementById('s1').value||'').toLowerCase();
+  const fw=document.getElementById('f1-who').value;
+  const fs=document.getElementById('f1-st').value;
+  const data=tasks.filter(t=>{
+    if(fw&&!t.who.includes(fw))return false;
+    if(fs&&t.status!==fs)return false;
+    if(q&&!(t.proj+t.task+t.who).toLowerCase().includes(q))return false;
+    return true;
+  });
+  const pctColor=p=>p===100?'#3B6D11':p>0?'#BA7517':'#aaa';
+  let html='';
+  data.forEach((t,i)=>{
+    const ri=tasks.indexOf(t);
+    html+=`<tr>
+      <td style="text-align:center;color:#aaa;">${t.no}</td>
+      <td><span class="tag">${t.proj}</span></td>
+      <td style="max-width:240px;line-height:1.4;">${t.task}</td>
+      <td style="white-space:nowrap;color:#666;">${t.who}</td>
+      <td style="white-space:nowrap;color:#888;">${t.ps||'—'}</td>
+      <td style="white-space:nowrap;color:#888;">${t.pe||'—'}</td>
+      <td style="white-space:nowrap;color:#888;">${t.as||'—'}</td>
+      <td style="white-space:nowrap;color:#888;">${t.ae||'—'}</td>
+      <td>
+        <div class="pct-bar-wrap">
+          <div class="pct-bar"><div class="pct-fill" style="width:${t.pct}%;background:${pctColor(t.pct)};"></div></div>
+          <span style="font-size:11px;font-weight:500;color:${pctColor(t.pct)};min-width:28px;text-align:right;">${t.pct}%</span>
+        </div>
+      </td>
+      <td>${badge(t.status)}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn" style="height:24px;padding:0 8px;font-size:11px;" onclick="openModal(${ri})">수정</button>
+        <button class="btn btn-danger" style="height:24px;padding:0 8px;font-size:11px;margin-left:4px;" onclick="deleteTask(${ri})">삭제</button>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('list-body').innerHTML=html||'<tr><td colspan="11" style="text-align:center;color:#aaa;padding:24px;">태스크 없음</td></tr>';
+  renderSummary();
+}
+
+// ── TAB 2: 간트
+const MONTHS=[{l:'03',w:4},{l:'04',w:5},{l:'05',w:4},{l:'06',w:4},{l:'07',w:5},{l:'08',w:4},{l:'09',w:4},{l:'10',w:5},{l:'11',w:4},{l:'12',w:5}];
+const WW=26;
+const totalW=MONTHS.reduce((a,m)=>a+m.w,0);
+const mStart={3:0,4:4,5:9,6:13,7:17,8:22,9:26,10:30,11:35,12:39};
+function d2w(s){
+  if(!s)return null;
+  const p=s.split('.');const mo=+p[0];const dy=+p[1];
+  if(mStart[mo]===undefined)return null;
+  return mStart[mo]+Math.floor((dy-1)/7);
+}
+function barColor(st){
+  if(st==='개발완료'||st==='완료'||st==='업체발주')return '#639922';
+  if(st==='개발대기')return '#378ADD';
+  if(st==='진행중')return '#BA7517';
+  return '#888780';
+}
+function renderGantt(){
+  const fw=document.getElementById('f2-who').value;
+  const data=tasks.filter(t=>(!fw||t.who.includes(fw))&&(t.ps||t.as));
+  // headers
+  let mh='<div style="width:360px;flex-shrink:0;border-right:0.5px solid #e0ddd5;background:#fafaf8;padding:5px 10px;font-size:11px;font-weight:500;color:#888;">항목</div><div style="flex:1;display:flex;">';
+  MONTHS.forEach(m=>{mh+=`<div class="month-cell" style="width:${m.w*WW}px;flex-shrink:0;">2026.${m.l}</div>`;});
+  mh+='</div>';
+  document.getElementById('mhdr').outerHTML=`<div class="g-head-months" id="mhdr">${mh}</div>`;
+  let wh='<div style="width:26px;flex-shrink:0;"></div><div style="width:72px;flex-shrink:0;font-size:10px;color:#aaa;padding:3px 4px;">프로젝트</div><div style="width:180px;flex-shrink:0;font-size:10px;color:#aaa;padding:3px 6px;">항목</div><div style="width:40px;flex-shrink:0;text-align:center;font-size:10px;color:#aaa;">담당</div><div style="width:36px;flex-shrink:0;text-align:right;padding-right:6px;font-size:10px;color:#aaa;">%</div><div style="flex:1;display:flex;">';
+  MONTHS.forEach(m=>{for(let w=1;w<=m.w;w++)wh+=`<div class="week-cell" style="width:${WW}px;flex-shrink:0;">${w}W</div>`;});
+  wh+='</div>';
+  document.getElementById('whdr').innerHTML=wh;
+  const pc=p=>p===100?'#3B6D11':p>0?'#BA7517':'#aaa';
+  let gb='';
+  data.forEach(t=>{
+    const pw1=d2w(t.ps),pw2=d2w(t.pe),aw1=d2w(t.as),aw2=d2w(t.ae);
+    const col=barColor(t.status);
+    let cols='';for(let i=0;i<totalW;i++)cols+=`<div class="bar-col" style="width:${WW}px;flex-shrink:0;"></div>`;
+    let bars='';
+    if(pw1!=null&&pw2!=null)bars+=`<div class="bar" style="left:${pw1*WW}px;width:${Math.max((pw2-pw1+1)*WW,WW)}px;top:8px;background:${col};opacity:.3;"></div>`;
+    if(aw1!=null&&aw2!=null)bars+=`<div class="bar" style="left:${aw1*WW}px;width:${Math.max((aw2-aw1+1)*WW,WW)}px;top:18px;background:${col};opacity:.9;"></div>`;
+    const tn=t.task.replace(/\[.*?\]\s*/,'').substring(0,28);
+    gb+=`<div class="g-row">
+      <div class="g-no">${t.no}</div>
+      <div class="g-proj"><span class="tag" style="font-size:10px;">${t.proj.substring(0,6)}</span></div>
+      <div class="g-task">${tn}${tn.length<t.task.replace(/\[.*?\]\s*/,'').length?'…':''}</div>
+      <div class="g-who">${t.who.includes('이세라')?'이S':'유M'}</div>
+      <div class="g-pct" style="color:${pc(t.pct)};">${t.pct}%</div>
+      <div class="g-bars"><div class="bar-cols">${cols}</div>${bars}</div>
+    </div>`;
+  });
+  document.getElementById('gbody').innerHTML=gb||'<div style="padding:24px;text-align:center;color:#aaa;font-size:12px;">날짜가 입력된 태스크가 없습니다.</div>';
+}
+
+// ── 모달
+function openModal(idx=null){
+  editIdx=idx;
+  const m=idx!=null?tasks[idx]:null;
+  document.getElementById('modal-title').textContent=m?'태스크 수정':'태스크 추가';
+  document.getElementById('f-no').value=m?m.no:tasks.length+1;
+  document.getElementById('f-proj').value=m?m.proj:'';
+  document.getElementById('f-task').value=m?m.task:'';
+  document.getElementById('f-who').value=m?m.who:'이세라';
+  document.getElementById('f-st').value=m?m.status:'예정';
+  document.getElementById('f-pct').value=m?m.pct:0;
+  document.getElementById('f-ps').value=m?m.ps:'';
+  document.getElementById('f-pe').value=m?m.pe:'';
+  document.getElementById('f-as').value=m?m.as:'';
+  document.getElementById('f-ae').value=m?m.ae:'';
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+function saveTask(){
+  const t={
+    no:+document.getElementById('f-no').value||tasks.length+1,
+    proj:document.getElementById('f-proj').value.trim()||'기타',
+    task:document.getElementById('f-task').value.trim(),
+    who:document.getElementById('f-who').value,
+    status:document.getElementById('f-st').value,
+    pct:+document.getElementById('f-pct').value||0,
+    ps:document.getElementById('f-ps').value.trim(),
+    pe:document.getElementById('f-pe').value.trim(),
+    as:document.getElementById('f-as').value.trim(),
+    ae:document.getElementById('f-ae').value.trim(),
+  };
+  if(!t.task){alert('항목명을 입력해주세요.');return;}
+  if(editIdx!=null)tasks[editIdx]=t;
+  else tasks.push(t);
+  save();closeModal();renderAll();
+}
+function deleteTask(i){
+  if(!confirm('삭제하시겠습니까?'))return;
+  tasks.splice(i,1);save();renderAll();
+}
+
+// ── CSV
+function exportCSV(){
+  const hd=['No','프로젝트','항목','담당','계획시작','계획종료','실적착수','실적종료','진척율','상태'];
+  const rows=tasks.map(t=>[t.no,t.proj,`"${t.task}"`,t.who,t.ps,t.pe,t.as,t.ae,t.pct+'%',t.status]);
+  const csv=[hd,...rows].map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='디자인팀_WBS_2026.csv';a.click();
+}
+
+// ── 탭 전환
+let curTab=0;
+function sw(i){
+  curTab=i;
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.view').forEach((v,j)=>v.classList.toggle('active',j===i));
+  if(i===2)renderGantt();
+}
+
+function renderAll(){renderSummary();renderProj();renderList();if(curTab===2)renderGantt();}
+renderAll();
+</script>
+</body>
+</html>
